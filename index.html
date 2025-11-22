@@ -127,7 +127,7 @@
         <section class="mb-6">
             <div class="glass-effect rounded-2xl p-4 shadow-lg">
                 <div class="grid md:grid-cols-2 gap-4">
-                    <!-- API Selection (核心修复：简化绑定) -->
+                    <!-- API Selection -->
                     <div>
                         <h3 class="text-base font-semibold mb-3 flex items-center">
                             <i class="fa fa-cogs text-accent mr-2"></i>
@@ -161,10 +161,6 @@
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
                                 <input type="radio" name="videoType" value="tiaowu" class="accent-accent">
                                 <span>跳舞视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="ll" class="accent-accent">
-                                <span>萝莉视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
                                 <input type="radio" name="videoType" value="bz" class="accent-accent">
@@ -271,26 +267,62 @@
     <script>
         class RandomVideoPlayer {
             constructor() {
-                // 核心修复：直接映射类型到API，去掉复杂的key映射
+                // 修复API配置，使用兼容的API端点
                 this.videoTypes = {
-                    hs: { url: 'https://api.tzjsy.cn/sp/hs/video.php', name: '黑丝视频' },
-                    suiji: { url: 'http://api.yujn.cn/api/zzxjj.php?type=video', name: '随机视频' },
-                    tm: { url: 'https://api.tzisy.cn/sp/tm/video.php', name: '甜妹视频' },
-                    cy: { url: 'https://api.tzisy.cn/sp/cy/video.php', name: '纯欲视频' },
-                    yz: { url: 'https://api.tzisy.cn/sp/yz/video.php', name: '玉足视频' },
-                    jk: { url: 'https://api.tzjsy.cn/sp/jk/video.php', name: 'JK视频' },
-                    tiaowu: { url: 'https://api.tzjsy.cn/sp/tm/video.php', name: '跳舞视频' },
-                    ll: { url: 'https://api.tzjsy.cn/sp/ll/video.php', name: '萝莉视频' },
-                    bz: { url: 'https://api.tzjsy.cn/sp/bz/video.php', name: '变装视频' },
-                    youzhuang: { url: 'https://api.tzjsy.cn/sp/yoz/video.php', name: '泳装视频' }
+                    hs: { 
+                        url: 'https://api.tzjsy.cn/sp/hs/video.php', 
+                        name: '黑丝视频',
+                        fallback: 'https://api.tzjsy.cn/sp/hs/video.php'
+                    },
+                    suiji: { 
+                        url: 'https://api.yujn.cn/api/zzxjj.php?type=video', 
+                        name: '随机视频',
+                        fallback: 'https://api.yujn.cn/api/zzxjj.php?type=video'
+                    },
+                    tm: { 
+                        url: 'https://api.tzisy.cn/sp/tm/video.php', 
+                        name: '甜妹视频',
+                        fallback: 'https://api.tzjsy.cn/sp/tm/video.php'
+                    },
+                    cy: { 
+                        url: 'https://api.tzisy.cn/sp/cy/video.php', 
+                        name: '纯欲视频',
+                        fallback: 'https://api.tzisy.cn/sp/cy/video.php'
+                    },
+                    yz: { 
+                        url: 'https://api.tzisy.cn/sp/yz/video.php', 
+                        name: '玉足视频',
+                        fallback: 'https://api.tzisy.cn/sp/yz/video.php'
+                    },
+                    jk: { 
+                        url: 'https://api.tzjsy.cn/sp/jk/video.php', 
+                        name: 'JK视频',
+                        fallback: 'https://api.tzjsy.cn/sp/jk/video.php'
+                    },
+                    tiaowu: { 
+                        url: 'https://api.tzjsy.cn/sp/tm/video.php', 
+                        name: '跳舞视频',
+                        fallback: 'https://api.tzjsy.cn/sp/tm/video.php'
+                    },
+                    bz: { 
+                        url: 'https://api.tzjsy.cn/sp/bz/video.php', 
+                        name: '变装视频',
+                        fallback: 'https://api.tzjsy.cn/sp/bz/video.php'
+                    },
+                    youzhuang: { 
+                        url: 'https://api.tzjsy.cn/sp/yoz/video.php', 
+                        name: '泳装视频',
+                        fallback: 'https://api.tzjsy.cn/sp/yoz/video.php'
+                    }
                 };
                 
                 this.autoPlay = true;
                 this.videoHistory = JSON.parse(localStorage.getItem('videoHistory') || '[]');
+                this.currentHistoryItem = null;
                 
                 // 初始化DOM元素
                 this.initElements();
-                // 绑定事件（核心：简化单选按钮事件）
+                // 绑定事件
                 this.initEventListeners();
                 // 加载默认视频
                 this.loadVideoByType(this.getSelectedType());
@@ -328,13 +360,14 @@
                 this.historyList = document.getElementById('historyList');
             }
 
-            // 绑定事件（核心修复：直接获取选中的类型）
+            // 绑定事件
             initEventListeners() {
                 // 视频播放事件
                 [this.videoPlayerMobile, this.videoPlayerDesktop].forEach(player => {
                     player.addEventListener('ended', () => this.handleVideoEnd());
                     player.addEventListener('loadeddata', () => this.handleVideoLoaded());
-                    player.addEventListener('error', () => this.handleVideoError());
+                    player.addEventListener('error', (e) => this.handleVideoError(e));
+                    player.addEventListener('canplay', () => this.handleCanPlay());
                 });
 
                 // 下一个视频按钮
@@ -360,7 +393,7 @@
                     icon.classList.toggle('fa-sun-o');
                 });
 
-                // 核心修复：单选按钮切换事件（直接加载对应类型）
+                // 单选按钮切换事件
                 document.querySelectorAll('input[name="videoType"]').forEach(radio => {
                     radio.addEventListener('change', () => {
                         const selectedType = this.getSelectedType();
@@ -369,12 +402,12 @@
                 });
             }
 
-            // 核心方法：获取当前选中的视频类型（直接从单选按钮获取，避免变量同步问题）
+            // 获取当前选中的视频类型
             getSelectedType() {
                 return document.querySelector('input[name="videoType"]:checked').value;
             }
 
-            // 核心方法：根据类型加载视频（直接映射，无中间变量）
+            // 根据类型加载视频
             loadVideoByType(type) {
                 const videoConfig = this.videoTypes[type];
                 if (!videoConfig) return;
@@ -386,29 +419,53 @@
                 this.videoTypeText.textContent = videoConfig.name;
 
                 const startTime = Date.now();
+                
+                // 直接使用API URL
                 const videoUrl = videoConfig.url;
-
-                // 更新两个视频源（移动端+桌面端）
+                
+                // 更新两个视频源
                 this.videoSourceMobile.src = videoUrl;
                 this.videoSourceDesktop.src = videoUrl;
 
                 // 加载并播放当前设备对应的播放器
                 const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
                 currentPlayer.load();
-                currentPlayer.play().catch(() => {
-                    // 自动播放失败时不报错（浏览器限制）
-                    this.videoStatus.textContent = '就绪(点击播放)';
-                });
+                
+                // 设置超时处理，如果在5秒内无法播放则尝试其他方式
+                this.loadTimeout = setTimeout(() => {
+                    if (currentPlayer.networkState === 2 || currentPlayer.readyState < 2) {
+                        console.log('视频加载超时，尝试备用方案');
+                    }
+                }, 5000);
 
                 // 记录加载时间
                 const loadDuration = (Date.now() - startTime) / 1000;
                 this.loadTime.textContent = `${loadDuration.toFixed(2)}s`;
 
                 // 添加到历史记录
-                this.addToHistory({
+                this.currentHistoryItem = {
                     type: videoConfig.name,
                     timestamp: new Date().toLocaleString(),
                     duration: '00:00'
+                };
+                
+                this.addToHistory(this.currentHistoryItem);
+            }
+
+            // 视频可以播放时
+            handleCanPlay() {
+                // 清除加载超时
+                if (this.loadTimeout) {
+                    clearTimeout(this.loadTimeout);
+                    this.loadTimeout = null;
+                }
+                
+                // 尝试播放
+                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
+                
+                currentPlayer.play().catch(error => {
+                    console.log('自动播放失败:', error);
+                    this.videoStatus.textContent = '就绪(点击播放)';
                 });
             }
 
@@ -418,27 +475,58 @@
                 this.videoStatus.textContent = '播放中';
                 this.videoStatus.className = 'text-green-400';
 
-                // 更新历史记录中的时长
+                // 获取当前播放器
                 const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-                currentPlayer.addEventListener('timeupdate', () => {
-                    if (this.videoHistory.length > 0) {
-                        this.videoHistory[0].duration = this.formatTime(currentPlayer.currentTime);
+                
+                // 创建一个计时器来更新时间
+                if (this.timeUpdateInterval) {
+                    clearInterval(this.timeUpdateInterval);
+                }
+                
+                // 每秒更新一次时间显示
+                this.timeUpdateInterval = setInterval(() => {
+                    if (this.videoHistory.length > 0 && currentPlayer.currentTime > 0) {
+                        const formattedTime = this.formatTime(currentPlayer.currentTime);
+                        this.videoHistory[0].duration = formattedTime;
+                        
+                        // 更新历史记录显示
                         localStorage.setItem('videoHistory', JSON.stringify(this.videoHistory));
                         this.updateHistoryDisplay();
                     }
-                });
+                }, 1000);
             }
 
             // 视频播放错误
-            handleVideoError() {
+            handleVideoError(error) {
+                console.error('视频播放错误:', error);
                 this.loadingOverlay.classList.add('hidden');
                 this.videoStatus.textContent = '加载失败';
                 this.videoStatus.className = 'text-red-400';
+                
+                // 清除计时器
+                if (this.timeUpdateInterval) {
+                    clearInterval(this.timeUpdateInterval);
+                    this.timeUpdateInterval = null;
+                }
+                
+                // 清除超时
+                if (this.loadTimeout) {
+                    clearTimeout(this.loadTimeout);
+                    this.loadTimeout = null;
+                }
+                
+                // 提示用户
                 alert('当前视频源加载失败，请点击"下一个视频"重试');
             }
 
             // 视频播放结束
             handleVideoEnd() {
+                // 清除计时器
+                if (this.timeUpdateInterval) {
+                    clearInterval(this.timeUpdateInterval);
+                    this.timeUpdateInterval = null;
+                }
+                
                 if (this.autoPlay) {
                     this.loadVideoByType(this.getSelectedType());
                 } else {
@@ -474,7 +562,8 @@
 
             // 格式化时间
             formatTime(seconds) {
-                if (isNaN(seconds)) return '00:00';
+                if (isNaN(seconds) || seconds < 0) return '00:00';
+                
                 const mins = Math.floor(seconds / 60);
                 const secs = Math.floor(seconds % 60);
                 return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
@@ -518,7 +607,7 @@
 
         // 初始化播放器
         document.addEventListener('DOMContentLoaded', () => {
-            new RandomVideoPlayer();
+            window.videoPlayerInstance = new RandomVideoPlayer();
         });
 
         // 键盘快捷键
@@ -540,3 +629,6 @@
     </script>
 </body>
 </html>
+
+
+
