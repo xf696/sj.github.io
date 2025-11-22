@@ -84,7 +84,7 @@
                 <div class="relative w-full mx-auto">
                     <!-- Mobile Video -->
                     <div class="mobile-video-container md:hidden bg-slate-800">
-                        <video id="videoPlayerMobile" class="w-full h-full object-contain" controls autoplay>
+                        <video id="videoPlayerMobile" class="w-full h-full object-contain" controls>
                             <source id="videoSourceMobile" src="" type="video/mp4">
                             您的浏览器不支持视频播放。
                         </video>
@@ -92,7 +92,7 @@
                     
                     <!-- Desktop Video -->
                     <div class="desktop-video-container hidden md:block bg-slate-800">
-                        <video id="videoPlayerDesktop" class="w-full h-full object-contain" controls autoplay>
+                        <video id="videoPlayerDesktop" class="w-full h-full object-contain" controls>
                             <source id="videoSourceDesktop" src="" type="video/mp4">
                             您的浏览器不支持视频播放。
                         </video>
@@ -208,8 +208,8 @@
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between">
-                            <span class="text-white/60">加载时间:</span>
-                            <span id="loadTime">-</span>
+                            <span class="text-white/60">视频时长:</span>
+                            <span id="videoDuration">-</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-white/60">状态:</span>
@@ -282,7 +282,7 @@
                     tm: { 
                         url: 'https://api.tzisy.cn/sp/tm/video.php', 
                         name: '甜妹视频',
-                        fallback: 'https://api.tzjsy.cn/sp/tm/video.php'
+                        fallback: 'https://api.tzisy.cn/sp/tm/video.php'
                     },
                     cy: { 
                         url: 'https://api.tzisy.cn/sp/cy/video.php', 
@@ -355,7 +355,7 @@
                 
                 // 信息显示
                 this.videoTypeText = document.getElementById('videoTypeText');
-                this.loadTime = document.getElementById('loadTime');
+                this.videoDuration = document.getElementById('videoDuration');
                 this.videoStatus = document.getElementById('videoStatus');
                 this.historyList = document.getElementById('historyList');
             }
@@ -368,6 +368,10 @@
                     player.addEventListener('loadeddata', () => this.handleVideoLoaded());
                     player.addEventListener('error', (e) => this.handleVideoError(e));
                     player.addEventListener('canplay', () => this.handleCanPlay());
+                    player.addEventListener('durationchange', () => this.handleDurationChange());
+                    player.addEventListener('loadstart', () => this.handleLoadStart());
+                    player.addEventListener('waiting', () => this.handleWaiting());
+                    player.addEventListener('playing', () => this.handlePlaying());
                 });
 
                 // 下一个视频按钮
@@ -417,9 +421,8 @@
                 this.videoStatus.textContent = '加载中';
                 this.videoStatus.className = 'text-yellow-400';
                 this.videoTypeText.textContent = videoConfig.name;
+                this.videoDuration.textContent = '-'; // 重置时长显示
 
-                const startTime = Date.now();
-                
                 // 直接使用API URL
                 const videoUrl = videoConfig.url;
                 
@@ -431,16 +434,15 @@
                 const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
                 currentPlayer.load();
                 
-                // 设置超时处理，如果在5秒内无法播放则尝试其他方式
+                // 设置超时处理，如果在10秒内无法播放则提示用户
                 this.loadTimeout = setTimeout(() => {
                     if (currentPlayer.networkState === 2 || currentPlayer.readyState < 2) {
-                        console.log('视频加载超时，尝试备用方案');
+                        console.log('视频加载超时');
+                        this.videoStatus.textContent = '加载超时';
+                        this.videoStatus.className = 'text-yellow-400';
+                        this.loadingOverlay.classList.add('hidden');
                     }
-                }, 5000);
-
-                // 记录加载时间
-                const loadDuration = (Date.now() - startTime) / 1000;
-                this.loadTime.textContent = `${loadDuration.toFixed(2)}s`;
+                }, 10000);
 
                 // 添加到历史记录
                 this.currentHistoryItem = {
@@ -450,6 +452,26 @@
                 };
                 
                 this.addToHistory(this.currentHistoryItem);
+            }
+
+            // 视频开始加载时
+            handleLoadStart() {
+                this.videoStatus.textContent = '加载中';
+                this.videoStatus.className = 'text-yellow-400';
+                this.loadingOverlay.classList.remove('hidden');
+            }
+
+            // 视频等待时
+            handleWaiting() {
+                this.videoStatus.textContent = '缓冲中';
+                this.videoStatus.className = 'text-yellow-400';
+            }
+
+            // 视频播放时
+            handlePlaying() {
+                this.videoStatus.textContent = '播放中';
+                this.videoStatus.className = 'text-green-400';
+                this.loadingOverlay.classList.add('hidden');
             }
 
             // 视频可以播放时
@@ -463,17 +485,25 @@
                 // 尝试播放
                 const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
                 
-                currentPlayer.play().catch(error => {
-                    console.log('自动播放失败:', error);
+                // 在移动设备上，我们不自动播放，等待用户交互
+                if ('ontouchstart' in window) {
+                    // 移动设备：不自动播放
                     this.videoStatus.textContent = '就绪(点击播放)';
-                });
+                    this.videoStatus.className = 'text-blue-400';
+                } else {
+                    // 桌面设备：尝试自动播放
+                    currentPlayer.play().catch(error => {
+                        console.log('自动播放失败:', error);
+                        this.videoStatus.textContent = '就绪(点击播放)';
+                    });
+                }
             }
 
             // 视频加载完成
             handleVideoLoaded() {
-                this.loadingOverlay.classList.add('hidden');
                 this.videoStatus.textContent = '播放中';
                 this.videoStatus.className = 'text-green-400';
+                this.loadingOverlay.classList.add('hidden');
 
                 // 获取当前播放器
                 const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
@@ -494,6 +524,16 @@
                         this.updateHistoryDisplay();
                     }
                 }, 1000);
+            }
+
+            // 视频时长变化时更新显示
+            handleDurationChange() {
+                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
+                
+                // 确保时长有效后再更新显示
+                if (currentPlayer.duration && !isNaN(currentPlayer.duration)) {
+                    this.videoDuration.textContent = this.formatTime(currentPlayer.duration);
+                }
             }
 
             // 视频播放错误
