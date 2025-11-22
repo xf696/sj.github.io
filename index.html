@@ -40,20 +40,6 @@
             .hover-scale:hover {
                 transform: scale(1.05);
             }
-            .pulse-animation {
-                animation: pulse 2s infinite;
-            }
-            @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.7; }
-            }
-            .fade-in {
-                animation: fadeIn 0.5s ease-in;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
             .mobile-video-container {
                 aspect-ratio: 9/16;
                 max-height: 70vh;
@@ -93,20 +79,19 @@
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-6">
         <!-- Video Player Section -->
-        <section class="mb-6 fade-in">
+        <section class="mb-6">
             <div class="bg-black/30 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-                <!-- Video Container - Responsive Design -->
                 <div class="relative w-full mx-auto">
-                    <!-- Mobile Video Container (9:16 aspect ratio) -->
-                    <div class="mobile-video-container md:hidden bg-gradient-to-br from-slate-800 to-slate-900">
+                    <!-- Mobile Video -->
+                    <div class="mobile-video-container md:hidden bg-slate-800">
                         <video id="videoPlayerMobile" class="w-full h-full object-contain" controls autoplay>
                             <source id="videoSourceMobile" src="" type="video/mp4">
                             您的浏览器不支持视频播放。
                         </video>
                     </div>
                     
-                    <!-- Desktop Video Container (16:9 aspect ratio) -->
-                    <div class="desktop-video-container hidden md:block bg-gradient-to-br from-slate-800 to-slate-900">
+                    <!-- Desktop Video -->
+                    <div class="desktop-video-container hidden md:block bg-slate-800">
                         <video id="videoPlayerDesktop" class="w-full h-full object-contain" controls autoplay>
                             <source id="videoSourceDesktop" src="" type="video/mp4">
                             您的浏览器不支持视频播放。
@@ -120,25 +105,14 @@
                             <p class="text-lg text-white/80">正在加载视频...</p>
                         </div>
                     </div>
-                    
-                    <!-- Error Overlay -->
-                    <div id="errorOverlay" class="absolute inset-0 bg-black/70 flex items-center justify-center hidden">
-                        <div class="text-center p-6">
-                            <i class="fa fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
-                            <p class="text-lg text-white mb-4">视频加载失败</p>
-                            <button id="retryBtn" class="bg-accent hover:bg-accent/80 text-white px-6 py-2 rounded-lg transition-colors">
-                                重试
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Quick Action Buttons (Mobile) -->
+        <!-- Mobile Buttons -->
         <div class="md:hidden mb-6">
             <div class="grid grid-cols-2 gap-3">
-                <button id="mobileNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white py-3 px-4 rounded-lg font-semibold transition-all hover-scale flex items-center justify-center space-x-2 text-sm">
+                <button id="mobileNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white py-3 px-4 rounded-lg font-semibold hover-scale flex items-center justify-center space-x-2 text-sm">
                     <i class="fa fa-random"></i>
                     <span>下一个视频</span>
                 </button>
@@ -150,62 +124,62 @@
         </div>
 
         <!-- Control Panel -->
-        <section class="mb-6 fade-in">
+        <section class="mb-6">
             <div class="glass-effect rounded-2xl p-4 shadow-lg">
                 <div class="grid md:grid-cols-2 gap-4">
-                    <!-- API Selection -->
+                    <!-- API Selection (核心修复：简化绑定) -->
                     <div>
                         <h3 class="text-base font-semibold mb-3 flex items-center">
                             <i class="fa fa-cogs text-accent mr-2"></i>
-                            API 选择
+                            视频类型选择
                         </h3>
                         <div class="api-grid">
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api1" checked class="accent-accent">
+                                <input type="radio" name="videoType" value="hs" checked class="accent-accent">
                                 <span>黑丝视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api2" class="accent-accent">
+                                <input type="radio" name="videoType" value="suiji" class="accent-accent">
                                 <span>随机视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api3" class="accent-accent">
+                                <input type="radio" name="videoType" value="tm" class="accent-accent">
                                 <span>甜妹视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api4" class="accent-accent">
+                                <input type="radio" name="videoType" value="cy" class="accent-accent">
                                 <span>纯欲视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api5" class="accent-accent">
+                                <input type="radio" name="videoType" value="yz" class="accent-accent">
                                 <span>玉足视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api6" class="accent-accent">
+                                <input type="radio" name="videoType" value="jk" class="accent-accent">
                                 <span>JK视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api7" class="accent-accent">
+                                <input type="radio" name="videoType" value="tiaowu" class="accent-accent">
                                 <span>跳舞视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api8" class="accent-accent">
+                                <input type="radio" name="videoType" value="ll" class="accent-accent">
                                 <span>萝莉视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api9" class="accent-accent">
+                                <input type="radio" name="videoType" value="bz" class="accent-accent">
                                 <span>变装视频</span>
                             </label>
                             <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="api" value="api10" class="accent-accent">
+                                <input type="radio" name="videoType" value="youzhuang" class="accent-accent">
                                 <span>泳装视频</span>
                             </label>
                         </div>
                     </div>
                     
-                    <!-- Desktop Action Buttons -->
+                    <!-- Desktop Buttons -->
                     <div class="hidden md:flex flex-col justify-end space-y-3">
-                        <button id="desktopNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white px-4 py-2 rounded-lg font-semibold transition-all hover-scale flex items-center justify-center space-x-2 text-sm">
+                        <button id="desktopNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white px-4 py-2 rounded-lg font-semibold hover-scale flex items-center justify-center space-x-2 text-sm">
                             <i class="fa fa-random"></i>
                             <span>下一个随机视频</span>
                         </button>
@@ -219,7 +193,7 @@
         </section>
 
         <!-- Video Info -->
-        <section class="mb-6 fade-in">
+        <section class="mb-6">
             <div class="glass-effect rounded-2xl p-4 shadow-lg">
                 <h3 class="text-base font-semibold mb-3 flex items-center">
                     <i class="fa fa-info-circle text-accent mr-2"></i>
@@ -228,12 +202,12 @@
                 <div id="videoInfo" class="grid grid-cols-2 gap-3 text-xs">
                     <div class="space-y-2">
                         <div class="flex justify-between">
-                            <span class="text-white/60">API 来源:</span>
-                            <span id="apiSource">-</span>
+                            <span class="text-white/60">视频类型:</span>
+                            <span id="videoTypeText">-</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-white/60">视频格式:</span>
-                            <span id="videoFormat">-</span>
+                            <span>MP4</span>
                         </div>
                     </div>
                     <div class="space-y-2">
@@ -251,7 +225,7 @@
         </section>
 
         <!-- History -->
-        <section class="fade-in">
+        <section>
             <div class="glass-effect rounded-2xl p-4 shadow-lg">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="text-base font-semibold flex items-center">
@@ -286,11 +260,10 @@
                 </button>
             </div>
             <div class="space-y-2 text-xs text-white/80">
-                <p>• 提供多种类型的随机视频API</p>
-                <p>• 支持多种视频格式播放</p>
-                <p>• 自动播放和历史记录功能</p>
-                <p>• 请确保网络连接稳定</p>
-                <p>• 选择不同API获取对应类型视频</p>
+                <p>• 选择对应类型即可加载相关视频</p>
+                <p>• 支持自动播放和历史记录功能</p>
+                <p>• 点击"下一个视频"可刷新同类型视频</p>
+                <p>• 网络不稳定时可能需要稍等加载</p>
             </div>
         </div>
     </div>
@@ -298,243 +271,208 @@
     <script>
         class RandomVideoPlayer {
             constructor() {
-                this.apiConfig = {
-                    api1: {
-                        url: 'https://api.tzjsy.cn/sp/yz/video.phps',
-                        name: '黑丝视频'
-                    },
-                    api2: {
-                        url: 'http://api.yujn.cn/api/zzxjj.php?type=video',
-                        name: '随机视频'
-                    },
-                    api3: {
-                        url: 'https://api.tzisy.cn/sp/tm/video.php',
-                        name: '甜妹视频'
-                    },
-                    api4: {
-                        url: 'https://api.tzisy.cn/sp/cy/video.php',
-                        name: '纯欲视频'
-                    },
-                    api5: {
-                        url: 'http://api.yujn.cn/api/zzxjj.php?type=video',
-                        name: '玉足视频'
-                    },
-                    api6: {
-                        url: 'https://api.tzjsy.cn/sp/jk/video.php',
-                        name: 'JK视频'
-                    },
-                    api7: {
-                        url: 'https://api.tzjsy.cn/sp/tm/video.php',
-                        name: '跳舞视频'
-                    },
-                    api8: {
-                        url: 'https://api.tzjsy.cn/sp/ll/video.php',
-                        name: '萝莉视频'
-                    },
-                    api9: {
-                        url: 'https://api.tzjsy.cn/sp/bz/video.php',
-                        name: '变装视频'
-                    },
-                    api10: {
-                        url: 'https://api.tzjsy.cn/sp/yoz/video.php',
-                        name: '泳装视频'
-                    }
+                // 核心修复：直接映射类型到API，去掉复杂的key映射
+                this.videoTypes = {
+                    hs: { url: 'https://api.tzjsy.cn/sp/hs/video.php', name: '黑丝视频' },
+                    suiji: { url: 'http://api.yujn.cn/api/zzxjj.php?type=video', name: '随机视频' },
+                    tm: { url: 'https://api.tzisy.cn/sp/tm/video.php', name: '甜妹视频' },
+                    cy: { url: 'https://api.tzisy.cn/sp/cy/video.php', name: '纯欲视频' },
+                    yz: { url: 'https://api.tzisy.cn/sp/yz/video.php', name: '玉足视频' },
+                    jk: { url: 'https://api.tzjsy.cn/sp/jk/video.php', name: 'JK视频' },
+                    tiaowu: { url: 'https://api.tzjsy.cn/sp/tm/video.php', name: '跳舞视频' },
+                    ll: { url: 'https://api.tzjsy.cn/sp/ll/video.php', name: '萝莉视频' },
+                    bz: { url: 'https://api.tzjsy.cn/sp/bz/video.php', name: '变装视频' },
+                    youzhuang: { url: 'https://api.tzjsy.cn/sp/yoz/video.php', name: '泳装视频' }
                 };
-                this.currentApi = 'api1';
+                
                 this.autoPlay = true;
                 this.videoHistory = JSON.parse(localStorage.getItem('videoHistory') || '[]');
-                this.isLoading = false;
                 
+                // 初始化DOM元素
                 this.initElements();
+                // 绑定事件（核心：简化单选按钮事件）
                 this.initEventListeners();
-                this.loadVideo();
+                // 加载默认视频
+                this.loadVideoByType(this.getSelectedType());
+                // 更新UI
                 this.updateHistoryDisplay();
                 this.updateAutoPlayButton();
             }
 
+            // 初始化DOM元素
             initElements() {
-                // Video Players
+                // 视频播放器
                 this.videoPlayerMobile = document.getElementById('videoPlayerMobile');
                 this.videoPlayerDesktop = document.getElementById('videoPlayerDesktop');
                 this.videoSourceMobile = document.getElementById('videoSourceMobile');
                 this.videoSourceDesktop = document.getElementById('videoSourceDesktop');
                 
-                // Overlays
+                // 覆盖层
                 this.loadingOverlay = document.getElementById('loadingOverlay');
-                this.errorOverlay = document.getElementById('errorOverlay');
                 
-                // Buttons
+                // 按钮
                 this.mobileNextVideoBtn = document.getElementById('mobileNextVideoBtn');
                 this.mobileAutoPlayBtn = document.getElementById('mobileAutoPlayBtn');
                 this.desktopNextVideoBtn = document.getElementById('desktopNextVideoBtn');
                 this.desktopAutoPlayBtn = document.getElementById('desktopAutoPlayBtn');
-                this.retryBtn = document.getElementById('retryBtn');
                 this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
+                this.infoBtn = document.getElementById('infoBtn');
+                this.closeInfoBtn = document.getElementById('closeInfoBtn');
+                this.themeToggle = document.getElementById('themeToggle');
+                this.infoModal = document.getElementById('infoModal');
                 
-                // Info Display
-                this.apiSource = document.getElementById('apiSource');
-                this.videoFormat = document.getElementById('videoFormat');
+                // 信息显示
+                this.videoTypeText = document.getElementById('videoTypeText');
                 this.loadTime = document.getElementById('loadTime');
                 this.videoStatus = document.getElementById('videoStatus');
                 this.historyList = document.getElementById('historyList');
-                
-                // Other Elements
-                this.themeToggle = document.getElementById('themeToggle');
-                this.infoBtn = document.getElementById('infoBtn');
-                this.infoModal = document.getElementById('infoModal');
-                this.closeInfoBtn = document.getElementById('closeInfoBtn');
             }
 
+            // 绑定事件（核心修复：直接获取选中的类型）
             initEventListeners() {
-                // Video player events
+                // 视频播放事件
                 [this.videoPlayerMobile, this.videoPlayerDesktop].forEach(player => {
-                    if (player) {
-                        player.addEventListener('timeupdate', () => this.updateVideoTime());
-                        player.addEventListener('loadedmetadata', () => this.updateVideoTime());
-                        player.addEventListener('ended', () => this.handleVideoEnd());
-                        player.addEventListener('error', () => this.handleVideoError());
-                        player.addEventListener('loadeddata', () => this.handleVideoLoaded());
-                        player.addEventListener('click', () => this.togglePlayPause());
-                    }
+                    player.addEventListener('ended', () => this.handleVideoEnd());
+                    player.addEventListener('loadeddata', () => this.handleVideoLoaded());
+                    player.addEventListener('error', () => this.handleVideoError());
                 });
 
-                // Button events
-                this.mobileNextVideoBtn?.addEventListener('click', () => this.loadVideo());
-                this.mobileAutoPlayBtn?.addEventListener('click', () => this.toggleAutoPlay());
-                this.desktopNextVideoBtn?.addEventListener('click', () => this.loadVideo());
-                this.desktopAutoPlayBtn?.addEventListener('click', () => this.toggleAutoPlay());
-                this.retryBtn?.addEventListener('click', () => this.loadVideo());
-                this.clearHistoryBtn?.addEventListener('click', () => this.clearHistory());
+                // 下一个视频按钮
+                this.mobileNextVideoBtn.addEventListener('click', () => this.loadVideoByType(this.getSelectedType()));
+                this.desktopNextVideoBtn.addEventListener('click', () => this.loadVideoByType(this.getSelectedType()));
 
-                // Other events
-                this.themeToggle?.addEventListener('click', () => this.toggleTheme());
-                this.infoBtn?.addEventListener('click', () => this.showInfoModal());
-                this.closeInfoBtn?.addEventListener('click', () => this.hideInfoModal());
+                // 自动播放切换
+                this.mobileAutoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
+                this.desktopAutoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
 
-                // API selection
-                document.querySelectorAll('input[name="api"]').forEach(radio => {
-                    radio.addEventListener('change', (e) => {
-                        this.currentApi = e.target.value;
-                        this.loadVideo();
-                    });
+                // 清空历史
+                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+
+                // 模态框
+                this.infoBtn.addEventListener('click', () => this.infoModal.classList.replace('hidden', 'flex'));
+                this.closeInfoBtn.addEventListener('click', () => this.infoModal.classList.add('hidden'));
+                this.infoModal.addEventListener('click', (e) => e.target === this.infoModal && this.infoModal.classList.add('hidden'));
+
+                // 主题切换
+                this.themeToggle.addEventListener('click', () => {
+                    const icon = this.themeToggle.querySelector('i');
+                    icon.classList.toggle('fa-moon-o');
+                    icon.classList.toggle('fa-sun-o');
                 });
 
-                // Close modal on outside click
-                this.infoModal?.addEventListener('click', (e) => {
-                    if (e.target === this.infoModal) {
-                        this.hideInfoModal();
-                    }
+                // 核心修复：单选按钮切换事件（直接加载对应类型）
+                document.querySelectorAll('input[name="videoType"]').forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        const selectedType = this.getSelectedType();
+                        this.loadVideoByType(selectedType);
+                    });
+                });
+            }
+
+            // 核心方法：获取当前选中的视频类型（直接从单选按钮获取，避免变量同步问题）
+            getSelectedType() {
+                return document.querySelector('input[name="videoType"]:checked').value;
+            }
+
+            // 核心方法：根据类型加载视频（直接映射，无中间变量）
+            loadVideoByType(type) {
+                const videoConfig = this.videoTypes[type];
+                if (!videoConfig) return;
+
+                // 显示加载中
+                this.loadingOverlay.classList.remove('hidden');
+                this.videoStatus.textContent = '加载中';
+                this.videoStatus.className = 'text-yellow-400';
+                this.videoTypeText.textContent = videoConfig.name;
+
+                const startTime = Date.now();
+                const videoUrl = videoConfig.url;
+
+                // 更新两个视频源（移动端+桌面端）
+                this.videoSourceMobile.src = videoUrl;
+                this.videoSourceDesktop.src = videoUrl;
+
+                // 加载并播放当前设备对应的播放器
+                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
+                currentPlayer.load();
+                currentPlayer.play().catch(() => {
+                    // 自动播放失败时不报错（浏览器限制）
+                    this.videoStatus.textContent = '就绪(点击播放)';
                 });
 
-                // Window resize handler
-                window.addEventListener('resize', () => this.handleWindowResize());
+                // 记录加载时间
+                const loadDuration = (Date.now() - startTime) / 1000;
+                this.loadTime.textContent = `${loadDuration.toFixed(2)}s`;
+
+                // 添加到历史记录
+                this.addToHistory({
+                    type: videoConfig.name,
+                    timestamp: new Date().toLocaleString(),
+                    duration: '00:00'
+                });
             }
 
-            getCurrentPlayer() {
-                return window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-            }
-
-            getCurrentSource() {
-                return window.innerWidth >= 768 ? this.videoSourceDesktop : this.videoSourceMobile;
-            }
-
-            async loadVideo() {
-                if (this.isLoading) return;
-
-                this.isLoading = true;
-                this.showLoading();
-                this.hideError();
-
-                try {
-                    const api = this.apiConfig[this.currentApi];
-                    const startTime = Date.now();
-                    const videoUrl = api.url;
-                    
-                    // Update both sources for seamless switching
-                    [this.videoSourceMobile, this.videoSourceDesktop].forEach(source => {
-                        if (source) source.src = videoUrl;
-                    });
-                    
-                    // Load current player
-                    const currentPlayer = this.getCurrentPlayer();
-                    if (currentPlayer) currentPlayer.load();
-                    
-                    const loadTime = (Date.now() - startTime) / 1000;
-                    
-                    // Update video info
-                    if (this.apiSource) this.apiSource.textContent = api.name;
-                    if (this.videoFormat) this.videoFormat.textContent = 'MP4';
-                    if (this.loadTime) this.loadTime.textContent = `${loadTime.toFixed(2)}s`;
-                    if (this.videoStatus) this.videoStatus.textContent = '加载中';
-                    
-                    // Add to history
-                    this.addToHistory({
-                        api: api.name,
-                        timestamp: new Date().toLocaleString(),
-                        duration: '未知'
-                    });
-                    
-                } catch (error) {
-                    console.error('Failed to load video:', error);
-                    this.showError();
-                    if (this.videoStatus) this.videoStatus.textContent = '加载失败';
-                } finally {
-                    this.isLoading = false;
-                }
-            }
-
+            // 视频加载完成
             handleVideoLoaded() {
-                this.hideLoading();
-                if (this.videoStatus) this.videoStatus.textContent = '就绪';
-                
-                if (this.autoPlay) {
-                    const currentPlayer = this.getCurrentPlayer();
-                    if (currentPlayer) {
-                        currentPlayer.play().catch(error => {
-                            console.warn('Auto play failed:', error);
-                            if (this.videoStatus) this.videoStatus.textContent = '就绪(点击播放)';
-                        });
+                this.loadingOverlay.classList.add('hidden');
+                this.videoStatus.textContent = '播放中';
+                this.videoStatus.className = 'text-green-400';
+
+                // 更新历史记录中的时长
+                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
+                currentPlayer.addEventListener('timeupdate', () => {
+                    if (this.videoHistory.length > 0) {
+                        this.videoHistory[0].duration = this.formatTime(currentPlayer.currentTime);
+                        localStorage.setItem('videoHistory', JSON.stringify(this.videoHistory));
+                        this.updateHistoryDisplay();
                     }
-                }
+                });
             }
 
+            // 视频播放错误
             handleVideoError() {
-                this.hideLoading();
-                this.showError();
-                if (this.videoStatus) this.videoStatus.textContent = '播放失败';
+                this.loadingOverlay.classList.add('hidden');
+                this.videoStatus.textContent = '加载失败';
+                this.videoStatus.className = 'text-red-400';
+                alert('当前视频源加载失败，请点击"下一个视频"重试');
             }
 
+            // 视频播放结束
             handleVideoEnd() {
                 if (this.autoPlay) {
-                    this.loadVideo();
+                    this.loadVideoByType(this.getSelectedType());
                 } else {
-                    if (this.videoStatus) this.videoStatus.textContent = '播放结束';
+                    this.videoStatus.textContent = '播放结束';
+                    this.videoStatus.className = 'text-gray-400';
                 }
             }
 
-            togglePlayPause() {
-                const currentPlayer = this.getCurrentPlayer();
-                if (!currentPlayer) return;
+            // 切换自动播放
+            toggleAutoPlay() {
+                this.autoPlay = !this.autoPlay;
+                const status = this.autoPlay ? '开启' : '关闭';
+                const statusText = this.autoPlay ? '自动播放' : '手动播放';
 
-                if (currentPlayer.paused) {
-                    currentPlayer.play();
-                    if (this.videoStatus) this.videoStatus.textContent = '播放中';
-                } else {
-                    currentPlayer.pause();
-                    if (this.videoStatus) this.videoStatus.textContent = '已暂停';
-                }
+                // 更新按钮样式和文本
+                [this.mobileAutoPlayBtn, this.desktopAutoPlayBtn].forEach(btn => {
+                    if (btn.id === 'mobileAutoPlayBtn') {
+                        btn.innerHTML = `<i class="fa fa-bullseye"></i><span>${statusText}</span>`;
+                    } else {
+                        btn.innerHTML = `<i class="fa fa-bullseye"></i><span>自动播放: ${status}</span>`;
+                    }
+                    btn.className = this.autoPlay 
+                        ? 'bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm'
+                        : 'bg-secondary hover:bg-secondary/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm';
+                });
             }
 
-            updateVideoTime() {
-                const currentPlayer = this.getCurrentPlayer();
-                if (!currentPlayer) return;
-
-                const current = this.formatTime(currentPlayer.currentTime);
-                const duration = this.formatTime(currentPlayer.duration);
-                
-                // Update time display in video controls (native controls will show this)
+            // 更新自动播放按钮状态
+            updateAutoPlayButton() {
+                this.toggleAutoPlay();
+                this.toggleAutoPlay(); // 触发两次，恢复初始状态
             }
 
+            // 格式化时间
             formatTime(seconds) {
                 if (isNaN(seconds)) return '00:00';
                 const mins = Math.floor(seconds / 60);
@@ -542,93 +480,25 @@
                 return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }
 
-            toggleAutoPlay() {
-                this.autoPlay = !this.autoPlay;
-                this.updateAutoPlayButton();
-            }
-
-            updateAutoPlayButton() {
-                const status = this.autoPlay ? '开启' : '关闭';
-                const statusText = this.autoPlay ? '自动播放' : '手动播放';
-                
-                if (this.mobileAutoPlayBtn) {
-                    this.mobileAutoPlayBtn.innerHTML = `<i class="fa fa-bullseye"></i><span>${statusText}</span>`;
-                    this.mobileAutoPlayBtn.className = this.autoPlay 
-                        ? 'bg-accent hover:bg-accent/80 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm'
-                        : 'bg-secondary hover:bg-secondary/80 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm';
-                }
-                
-                if (this.desktopAutoPlayBtn) {
-                    this.desktopAutoPlayBtn.innerHTML = `<i class="fa fa-bullseye"></i><span>自动播放: ${status}</span>`;
-                    this.desktopAutoPlayBtn.className = this.autoPlay 
-                        ? 'bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm'
-                        : 'bg-secondary hover:bg-secondary/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm';
-                }
-            }
-
-            toggleTheme() {
-                document.body.classList.toggle('dark-mode');
-                const icon = document.querySelector('#themeToggle i');
-                if (icon) {
-                    if (icon.classList.contains('fa-moon-o')) {
-                        icon.classList.replace('fa-moon-o', 'fa-sun-o');
-                    } else {
-                        icon.classList.replace('fa-sun-o', 'fa-moon-o');
-                    }
-                }
-            }
-
-            showInfoModal() {
-                if (this.infoModal) {
-                    this.infoModal.classList.remove('hidden');
-                    this.infoModal.classList.add('flex');
-                }
-            }
-
-            hideInfoModal() {
-                if (this.infoModal) {
-                    this.infoModal.classList.add('hidden');
-                    this.infoModal.classList.remove('flex');
-                }
-            }
-
-            showLoading() {
-                if (this.loadingOverlay) this.loadingOverlay.classList.remove('hidden');
-            }
-
-            hideLoading() {
-                if (this.loadingOverlay) this.loadingOverlay.classList.add('hidden');
-            }
-
-            showError() {
-                if (this.errorOverlay) this.errorOverlay.classList.remove('hidden');
-            }
-
-            hideError() {
-                if (this.errorOverlay) this.errorOverlay.classList.add('hidden');
-            }
-
-            addToHistory(videoInfo) {
-                this.videoHistory.unshift(videoInfo);
-                if (this.videoHistory.length > 20) {
-                    this.videoHistory = this.videoHistory.slice(0, 20);
-                }
+            // 添加到历史记录
+            addToHistory(item) {
+                this.videoHistory.unshift(item);
+                if (this.videoHistory.length > 20) this.videoHistory = this.videoHistory.slice(0, 20);
                 localStorage.setItem('videoHistory', JSON.stringify(this.videoHistory));
                 this.updateHistoryDisplay();
             }
 
+            // 更新历史记录显示
             updateHistoryDisplay() {
-                if (!this.historyList) return;
-
                 if (this.videoHistory.length === 0) {
                     this.historyList.innerHTML = '<p class="text-white/60 text-center py-3">暂无播放历史</p>';
                     return;
                 }
 
-                this.historyList.innerHTML = this.videoHistory.map((item, index) => `
+                this.historyList.innerHTML = this.videoHistory.map(item => `
                     <div class="flex justify-between items-center p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
                         <div class="flex-1">
-                            <div class="font-medium">${item.api}</div>
+                            <div class="font-medium">${item.type}</div>
                             <div class="text-white/60">${item.timestamp}</div>
                         </div>
                         <div class="text-white/60">${item.duration}</div>
@@ -636,6 +506,7 @@
                 `).join('');
             }
 
+            // 清空历史记录
             clearHistory() {
                 if (confirm('确定要清空播放历史吗？')) {
                     this.videoHistory = [];
@@ -643,45 +514,26 @@
                     this.updateHistoryDisplay();
                 }
             }
-
-            handleWindowResize() {
-                // Ensure video continues playing when switching between mobile and desktop
-                const currentPlayer = this.getCurrentPlayer();
-                const otherPlayer = window.innerWidth >= 768 ? this.videoPlayerMobile : this.videoPlayerDesktop;
-                
-                if (currentPlayer && otherPlayer && !currentPlayer.paused && otherPlayer.paused) {
-                    currentPlayer.currentTime = otherPlayer.currentTime;
-                }
-            }
         }
 
-        // Initialize the player when DOM is loaded
+        // 初始化播放器
         document.addEventListener('DOMContentLoaded', () => {
-            window.videoPlayerInstance = new RandomVideoPlayer();
+            new RandomVideoPlayer();
         });
 
-        // Add keyboard shortcuts
+        // 键盘快捷键
         document.addEventListener('keydown', (e) => {
-            // Find the player instance
             const player = window.videoPlayerInstance;
-            
             if (!player) return;
 
             switch(e.code) {
                 case 'Space':
                     e.preventDefault();
-                    player.togglePlayPause();
-                    break;
-                case 'ArrowRight':
-                    const currentPlayer = player.getCurrentPlayer();
-                    if (currentPlayer) currentPlayer.currentTime += 10;
-                    break;
-                case 'ArrowLeft':
-                    const currentPlayer2 = player.getCurrentPlayer();
-                    if (currentPlayer2) currentPlayer2.currentTime -= 10;
+                    const currentPlayer = window.innerWidth >= 768 ? player.videoPlayerDesktop : player.videoPlayerMobile;
+                    currentPlayer.paused ? currentPlayer.play() : currentPlayer.pause();
                     break;
                 case 'KeyN':
-                    player.loadVideo();
+                    player.loadVideoByType(player.getSelectedType());
                     break;
             }
         });
