@@ -1,674 +1,416 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>随机视频播放器</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2563eb',
-                        secondary: '#64748b',
-                        accent: '#f59e0b',
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
-                    },
-                },
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .glass-effect {
-                backdrop-filter: blur(10px);
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-            .hover-scale {
-                transition: transform 0.3s ease;
-            }
-            .hover-scale:hover {
-                transform: scale(1.05);
-            }
-            .mobile-video-container {
-                aspect-ratio: 9/16;
-                max-height: 70vh;
-            }
-            .desktop-video-container {
-                aspect-ratio: 16/9;
-            }
-            .api-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.75rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>星语视频 - 发现精彩瞬间</title>
+  <link rel="shortcut icon" href="https://api.tzjsy.cn/images/favicon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#FF6B9D',
+            secondary: '#4ECDC4',
+            accent: '#45B7D1',
+            dark: '#2C3E50',
+            light: '#F8F9FA'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #FF6B9D, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+      .pulse-glow {
+        animation: pulse-glow 2s infinite;
+      }
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 157, 0.4); }
+        50% { box-shadow: 0 0 40px rgba(255, 107, 157, 0.6); }
+      }
+    }
+  </style>
 </head>
-<body class="font-inter bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
-    <!-- Header -->
-    <header class="glass-effect sticky top-0 z-50 px-4 py-3">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fa fa-play-circle text-xl text-accent"></i>
-                <h1 class="text-lg font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-                    随机视频播放器
-                </h1>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button id="themeToggle" class="p-2 rounded-full hover:bg-white/20 transition-colors">
-                    <i class="fa fa-moon-o"></i>
-                </button>
-                <button id="infoBtn" class="p-2 rounded-full hover:bg-white/20 transition-colors">
-                    <i class="fa fa-info-circle"></i>
-                </button>
-            </div>
+
+<body class="font-inter bg-gradient-to-br from-light via-white to-gray-50 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+            <i class="fa fa-play text-white text-lg"></i>
+          </div>
+          <h1 class="text-xl font-bold gradient-text">星语视频</h1>
         </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6">
-        <!-- Video Player Section -->
-        <section class="mb-6">
-            <div class="bg-black/30 rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-                <div class="relative w-full mx-auto">
-                    <!-- Mobile Video -->
-                    <div class="mobile-video-container md:hidden bg-slate-800">
-                        <video id="videoPlayerMobile" class="w-full h-full object-contain" controls>
-                            <source id="videoSourceMobile" src="" type="video/mp4">
-                            您的浏览器不支持视频播放。
-                        </video>
-                    </div>
-                    
-                    <!-- Desktop Video -->
-                    <div class="desktop-video-container hidden md:block bg-slate-800">
-                        <video id="videoPlayerDesktop" class="w-full h-full object-contain" controls>
-                            <source id="videoSourceDesktop" src="" type="video/mp4">
-                            您的浏览器不支持视频播放。
-                        </video>
-                    </div>
-                    
-                    <!-- Loading Overlay -->
-                    <div id="loadingOverlay" class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <div class="text-center">
-                            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-accent mb-4"></div>
-                            <p class="text-lg text-white/80">正在加载视频...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Mobile Buttons -->
-        <div class="md:hidden mb-6">
-            <div class="grid grid-cols-2 gap-3">
-                <button id="mobileNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white py-3 px-4 rounded-lg font-semibold hover-scale flex items-center justify-center space-x-2 text-sm">
-                    <i class="fa fa-random"></i>
-                    <span>下一个视频</span>
-                </button>
-                <button id="mobileAutoPlayBtn" class="bg-accent hover:bg-accent/80 text-white py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm">
-                    <i class="fa fa-bullseye"></i>
-                    <span>自动播放</span>
-                </button>
-            </div>
+        
+        <div class="hidden md:flex items-center space-x-6">
+          <button class="text-gray-600 hover:text-primary transition-colors duration-200">
+            <i class="fa fa-home mr-2"></i>首页
+          </button>
+          <button class="text-gray-600 hover:text-primary transition-colors duration-200">
+            <i class="fa fa-heart mr-2"></i>收藏
+          </button>
+          <button class="text-gray-600 hover:text-primary transition-colors duration-200">
+            <i class="fa fa-history mr-2"></i>历史
+          </button>
+          <button class="text-gray-600 hover:text-primary transition-colors duration-200">
+            <i class="fa fa-bullseye mr-2"></i>设置
+          </button>
         </div>
-
-        <!-- Control Panel -->
-        <section class="mb-6">
-            <div class="glass-effect rounded-2xl p-4 shadow-lg">
-                <div class="grid md:grid-cols-2 gap-4">
-                    <!-- API Selection -->
-                    <div>
-                        <h3 class="text-base font-semibold mb-3 flex items-center">
-                            <i class="fa fa-cogs text-accent mr-2"></i>
-                            视频类型选择
-                        </h3>
-                        <div class="api-grid">
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="hs" checked class="accent-accent">
-                                <span>黑丝视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="suiji" class="accent-accent">
-                                <span>随机视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="tm" class="accent-accent">
-                                <span>甜妹视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="cy" class="accent-accent">
-                                <span>纯欲视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="yz" class="accent-accent">
-                                <span>玉足视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="jk" class="accent-accent">
-                                <span>JK视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="tiaowu" class="accent-accent">
-                                <span>跳舞视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="bz" class="accent-accent">
-                                <span>变装视频</span>
-                            </label>
-                            <label class="flex items-center space-x-2 cursor-pointer text-sm">
-                                <input type="radio" name="videoType" value="youzhuang" class="accent-accent">
-                                <span>泳装视频</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Desktop Buttons -->
-                    <div class="hidden md:flex flex-col justify-end space-y-3">
-                        <button id="desktopNextVideoBtn" class="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/80 hover:to-purple-600/80 text-white px-4 py-2 rounded-lg font-semibold hover-scale flex items-center justify-center space-x-2 text-sm">
-                            <i class="fa fa-random"></i>
-                            <span>下一个随机视频</span>
-                        </button>
-                        <button id="desktopAutoPlayBtn" class="bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm">
-                            <i class="fa fa-bullseye"></i>
-                            <span>自动播放: 开启</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Video Info -->
-        <section class="mb-6">
-            <div class="glass-effect rounded-2xl p-4 shadow-lg">
-                <h3 class="text-base font-semibold mb-3 flex items-center">
-                    <i class="fa fa-info-circle text-accent mr-2"></i>
-                    视频信息
-                </h3>
-                <div id="videoInfo" class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-white/60">视频类型:</span>
-                            <span id="videoTypeText">-</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-white/60">视频格式:</span>
-                            <span>MP4</span>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-white/60">视频时长:</span>
-                            <span id="videoDuration">-</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-white/60">状态:</span>
-                            <span id="videoStatus" class="text-green-400">就绪</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- History -->
-        <section>
-            <div class="glass-effect rounded-2xl p-4 shadow-lg">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-base font-semibold flex items-center">
-                        <i class="fa fa-history text-accent mr-2"></i>
-                        播放历史
-                    </h3>
-                    <button id="clearHistoryBtn" class="text-white/60 hover:text-white text-xs">
-                        清空历史
-                    </button>
-                </div>
-                <div id="historyList" class="space-y-2 max-h-32 overflow-y-auto text-xs">
-                    <p class="text-white/60 text-center py-3">暂无播放历史</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="glass-effect mt-8 px-4 py-3">
-        <div class="container mx-auto text-center text-white/60 text-xs">
-            <p>&copy; 2024 随机视频播放器 | 仅供娱乐使用</p>
+        
+        <div class="md:hidden">
+          <button class="text-gray-600 hover:text-primary">
+            <i class="fa fa-bars text-xl"></i>
+          </button>
         </div>
-    </footer>
-
-    <!-- Info Modal -->
-    <div id="infoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="glass-effect rounded-2xl p-5 max-w-sm w-full">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-base font-semibold">关于播放器</h3>
-                <button id="closeInfoBtn" class="text-white/60 hover:text-white">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
-            <div class="space-y-2 text-xs text-white/80">
-                <p>• 选择对应类型即可加载相关视频</p>
-                <p>• 支持自动播放和历史记录功能</p>
-                <p>• 点击"下一个视频"可刷新同类型视频</p>
-                <p>• 网络不稳定时可能需要稍等加载</p>
-            </div>
-        </div>
+      </div>
     </div>
+  </nav>
 
-    <script>
-        class RandomVideoPlayer {
-            constructor() {
-                // 修复API配置，使用兼容的API端点
-                this.videoTypes = {
-                    hs: { 
-                        url: 'https://api.tzjsy.cn/sp/hs/video.php', 
-                        name: '黑丝视频',
-                        fallback: 'https://api.tzjsy.cn/sp/hs/video.php'
-                    },
-                    suiji: { 
-                        url: 'https://api.yujn.cn/api/zzxjj.php?type=video', 
-                        name: '随机视频',
-                        fallback: 'https://api.yujn.cn/api/zzxjj.php?type=video'
-                    },
-                    tm: { 
-                        url: 'https://api.tzisy.cn/sp/tm/video.php', 
-                        name: '甜妹视频',
-                        fallback: 'https://api.tzisy.cn/sp/tm/video.php'
-                    },
-                    cy: { 
-                        url: 'https://api.tzisy.cn/sp/cy/video.php', 
-                        name: '纯欲视频',
-                        fallback: 'https://api.tzisy.cn/sp/cy/video.php'
-                    },
-                    yz: { 
-                        url: 'https://api.tzisy.cn/sp/yz/video.php', 
-                        name: '玉足视频',
-                        fallback: 'https://api.tzisy.cn/sp/yz/video.php'
-                    },
-                    jk: { 
-                        url: 'https://api.tzjsy.cn/sp/jk/video.php', 
-                        name: 'JK视频',
-                        fallback: 'https://api.tzjsy.cn/sp/jk/video.php'
-                    },
-                    tiaowu: { 
-                        url: 'https://api.tzjsy.cn/sp/tm/video.php', 
-                        name: '跳舞视频',
-                        fallback: 'https://api.tzjsy.cn/sp/tm/video.php'
-                    },
-                    bz: { 
-                        url: 'https://api.tzjsy.cn/sp/bz/video.php', 
-                        name: '变装视频',
-                        fallback: 'https://api.tzjsy.cn/sp/bz/video.php'
-                    },
-                    youzhuang: { 
-                        url: 'https://api.tzjsy.cn/sp/yoz/video.php', 
-                        name: '泳装视频',
-                        fallback: 'https://api.tzjsy.cn/sp/yoz/video.php'
-                    }
-                };
-                
-                this.autoPlay = true;
-                this.videoHistory = JSON.parse(localStorage.getItem('videoHistory') || '[]');
-                this.currentHistoryItem = null;
-                
-                // 初始化DOM元素
-                this.initElements();
-                // 绑定事件
-                this.initEventListeners();
-                // 加载默认视频
-                this.loadVideoByType(this.getSelectedType());
-                // 更新UI
-                this.updateHistoryDisplay();
-                this.updateAutoPlayButton();
-            }
+  <!-- 主内容区域 -->
+  <main class="pt-20 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- 视频播放器容器 -->
+      <div class="mb-8">
+        <div class="relative bg-black rounded-2xl overflow-hidden shadow-2xl hover-lift">
+          <!-- 视频播放器 -->
+          <video 
+            id="player" 
+            class="w-full h-auto max-h-[80vh] object-contain"
+            controls
+            poster="https://picsum.photos/id/237/1280/720"
+          >
+            <source src="https://api.tzjsy.cn/sp/515/video.php" type="video/mp4">
+            您的浏览器不支持视频播放。
+          </video>
+          
+          <!-- 加载指示器 -->
+          <div id="loadingIndicator" class="absolute inset-0 bg-black/50 flex items-center justify-center hidden">
+            <div class="text-white text-center">
+              <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p class="text-lg">正在加载精彩内容...</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            // 初始化DOM元素
-            initElements() {
-                // 视频播放器
-                this.videoPlayerMobile = document.getElementById('videoPlayerMobile');
-                this.videoPlayerDesktop = document.getElementById('videoPlayerDesktop');
-                this.videoSourceMobile = document.getElementById('videoSourceMobile');
-                this.videoSourceDesktop = document.getElementById('videoSourceDesktop');
-                
-                // 覆盖层
-                this.loadingOverlay = document.getElementById('loadingOverlay');
-                
-                // 按钮
-                this.mobileNextVideoBtn = document.getElementById('mobileNextVideoBtn');
-                this.mobileAutoPlayBtn = document.getElementById('mobileAutoPlayBtn');
-                this.desktopNextVideoBtn = document.getElementById('desktopNextVideoBtn');
-                this.desktopAutoPlayBtn = document.getElementById('desktopAutoPlayBtn');
-                this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
-                this.infoBtn = document.getElementById('infoBtn');
-                this.closeInfoBtn = document.getElementById('closeInfoBtn');
-                this.themeToggle = document.getElementById('themeToggle');
-                this.infoModal = document.getElementById('infoModal');
-                
-                // 信息显示
-                this.videoTypeText = document.getElementById('videoTypeText');
-                this.videoDuration = document.getElementById('videoDuration');
-                this.videoStatus = document.getElementById('videoStatus');
-                this.historyList = document.getElementById('historyList');
-            }
+      <!-- 控制面板 -->
+      <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 连续播放开关 -->
+          <div class="text-center">
+            <button 
+              id="switchBtn" 
+              class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-6 rounded-xl font-semibold text-lg hover-lift pulse-glow"
+            >
+              <i class="fa fa-bullseye mr-2"></i>连续播放: 开启
+            </button>
+          </div>
+          
+          <!-- 换一个按钮 -->
+          <div class="text-center">
+            <button 
+              id="nextBtn" 
+              class="w-full bg-gradient-to-r from-accent to-secondary text-white py-3 px-6 rounded-xl font-semibold text-lg hover-lift"
+            >
+              <i class="fa fa-random mr-2"></i>换一个
+            </button>
+          </div>
+          
+          <!-- 分类选择 -->
+          <div class="relative">
+            <button 
+              id="categoryBtn" 
+              class="w-full bg-gradient-to-r from-dark to-gray-700 text-white py-3 px-6 rounded-xl font-semibold text-lg hover-lift flex items-center justify-center"
+            >
+              <i class="fa fa-th-list mr-2"></i>选择分类
+              <i class="fa fa-chevron-down ml-2"></i>
+            </button>
+            
+            <!-- 分类下拉菜单 -->
+            <div id="categoryDropdown" class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl overflow-hidden z-40 hidden">
+              <select 
+                id="sourceSelect" 
+                class="w-full p-4 text-gray-700 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="https://api.tzjsy.cn/sp/515/video.php">💃 跳舞</option>
+                <option value="https://api.tzjsy.cn/sp/hs/video.php">🖤 黑丝</option>
+                <option value="https://api.tzjsy.cn/sp/bs/video.php">🤍 白丝</option>
+                <option value="https://api.tzjsy.cn/sp/cos/video.php">🎭 COS</option>
+                <option value="https://api.tzjsy.cn/sp/jk/video.php">🎒 JK</option>
+                <option value="https://api.tzjsy.cn/sp/tm/video.php">😊 甜妹</option>
+                <option value="https://api.tzjsy.cn/sp/cy/video.php">😍 纯欲</option>
+                <option value="https://api.tzjsy.cn/sp/qc/video.php">🌸 清纯</option>
+                <option value="https://api.tzjsy.cn/sp/ll/video.php">👧 萝莉</option>
+                <option value="https://api.tzjsy.cn/sp/yz/video.php">🦶 玉足</option>
+                <option value="https://api.tzjsy.cn/sp/yoz/video.php">👙 泳装</option>
+                <option value="https://api.tzjsy.cn/sp/mz/video.php">🎪 漫展</option>
+                <option value="https://api.tzjsy.cn/sp/dd/video.php">🎽 吊带</option>
+                <option value="https://api.tzjsy.cn/sp/bz/video.php">✨ 变装</option>
+                <option value="https://api.tzjsy.cn/sp/xjj/video.php">👩 小姐姐</option>
+                <option value="https://api.tzjsy.cn/sp/xgg/video.php">👨 小哥哥</option>
+                <option value="https://api.tzjsy.cn/sp/zsmm/video.php">💜 紫色妹妹</option>
+                <option value="https://api.tzjsy.cn/sp/sbkl/video.php">🎉 双倍快乐</option>
+                <option value="https://api.tzjsy.cn/sp/dyksmn/video.php">📱 抖音快手美女</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            // 绑定事件
-            initEventListeners() {
-                // 视频播放事件
-                [this.videoPlayerMobile, this.videoPlayerDesktop].forEach(player => {
-                    player.addEventListener('ended', () => this.handleVideoEnd());
-                    player.addEventListener('loadeddata', () => this.handleVideoLoaded());
-                    player.addEventListener('error', (e) => this.handleVideoError(e));
-                    player.addEventListener('canplay', () => this.handleCanPlay());
-                    player.addEventListener('durationchange', () => this.handleDurationChange());
-                    player.addEventListener('loadstart', () => this.handleLoadStart());
-                    player.addEventListener('waiting', () => this.handleWaiting());
-                    player.addEventListener('playing', () => this.handlePlaying());
-                });
+      <!-- 热门分类推荐 -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+          <i class="fa fa-fire text-primary mr-3"></i>热门分类
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <button class="category-chip bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            💃 跳舞
+          </button>
+          <button class="category-chip bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            🎭 COS
+          </button>
+          <button class="category-chip bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            🎒 JK
+          </button>
+          <button class="category-chip bg-gradient-to-r from-green-500 to-emerald-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            😊 甜妹
+          </button>
+          <button class="category-chip bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            👙 泳装
+          </button>
+          <button class="category-chip bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 rounded-xl text-sm font-medium hover-lift">
+            🦶 玉足
+          </button>
+        </div>
+      </div>
 
-                // 下一个视频按钮
-                this.mobileNextVideoBtn.addEventListener('click', () => this.loadVideoByType(this.getSelectedType()));
-                this.desktopNextVideoBtn.addEventListener('click', () => this.loadVideoByType(this.getSelectedType()));
+      <!-- 功能特色 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl p-6 text-center hover-lift">
+          <div class="w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-magic text-white text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">智能推荐</h3>
+          <p class="text-gray-600">根据您的喜好智能推荐精彩内容</p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-accent/10 to-secondary/10 rounded-2xl p-6 text-center hover-lift">
+          <div class="w-16 h-16 bg-gradient-to-r from-accent to-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-bullseye text-white text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">高清画质</h3>
+          <p class="text-gray-600">支持多种清晰度，享受视觉盛宴</p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-dark/10 to-gray-700/10 rounded-2xl p-6 text-center hover-lift">
+          <div class="w-16 h-16 bg-gradient-to-r from-dark to-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa fa-mobile text-white text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">响应式设计</h3>
+          <p class="text-gray-600">完美适配手机、平板、电脑等设备</p>
+        </div>
+      </div>
+    </div>
+  </main>
 
-                // 自动播放切换
-                this.mobileAutoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
-                this.desktopAutoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
+  <!-- 底部信息 -->
+  <footer class="bg-dark text-white py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div>
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+              <i class="fa fa-play text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold">星语视频</h3>
+          </div>
+          <p class="text-gray-300 mb-4">发现生活中的美好瞬间，享受视觉与心灵的双重盛宴。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">
+              <i class="fa fa-weibo text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">
+              <i class="fa fa-wechat text-xl"></i>
+            </a>
+            <a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">
+              <i class="fa fa-qq text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+          <ul class="space-y-2">
+            <li><a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">首页</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">热门分类</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">最新更新</a></li>
+            <li><a href="#" class="text-gray-300 hover:text-primary transition-colors duration-200">关于我们</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-lg font-semibold mb-4">联系我们</h4>
+          <ul class="space-y-2 text-gray-300">
+            <li class="flex items-center">
+              <i class="fa fa-envelope mr-2"></i>
+              contact@xingyu.video
+            </li>
+            <li class="flex items-center">
+              <i class="fa fa-qq mr-2"></i>
+              QQ群: 123456789
+            </li>
+            <li class="flex items-center">
+              <i class="fa fa-clock-o mr-2"></i>
+              24小时在线服务
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+        <p>&copy; 2024 星语视频. 保留所有权利. | 温馨提示：请理性观看，遵守法律法规</p>
+      </div>
+    </div>
+  </footer>
 
-                // 清空历史
-                this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+  <!-- 弹窗广告 -->
+  <div id="popup" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden hover-lift">
+      <!-- 弹窗头部 -->
+      <div class="bg-gradient-to-r from-primary to-secondary p-6 text-white">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-bold">特别推荐</h3>
+          <button id="closePopup" class="text-white hover:text-gray-200 transition-colors duration-200">
+            <i class="fa fa-times text-xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 弹窗内容 -->
+      <div class="p-6">
+        <div class="mb-4">
+          <img src="https://picsum.photos/id/64/400/200" alt="推荐内容" class="w-full h-40 object-cover rounded-xl">
+        </div>
+        <h4 class="text-lg font-semibold text-gray-800 mb-2">加入我们的社群</h4>
+        <p class="text-gray-600 mb-6">获取更多精彩内容和专属福利</p>
+        
+        <!-- 弹窗按钮 -->
+        <div class="grid grid-cols-2 gap-4">
+          <button id="gotoHomepage" class="bg-gradient-to-r from-accent to-secondary text-white py-3 px-4 rounded-xl font-semibold hover-lift text-center">
+            <i class="fa fa-home mr-2"></i>访问主页
+          </button>
+          <button id="joinGroup" class="bg-gradient-to-r from-dark to-gray-700 text-white py-3 px-4 rounded-xl font-semibold hover-lift text-center">
+            <i class="fa fa-users mr-2"></i>加入群聊
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                // 模态框
-                this.infoBtn.addEventListener('click', () => this.infoModal.classList.replace('hidden', 'flex'));
-                this.closeInfoBtn.addEventListener('click', () => this.infoModal.classList.add('hidden'));
-                this.infoModal.addEventListener('click', (e) => e.target === this.infoModal && this.infoModal.classList.add('hidden'));
-
-                // 主题切换
-                this.themeToggle.addEventListener('click', () => {
-                    const icon = this.themeToggle.querySelector('i');
-                    icon.classList.toggle('fa-moon-o');
-                    icon.classList.toggle('fa-sun-o');
-                });
-
-                // 单选按钮切换事件
-                document.querySelectorAll('input[name="videoType"]').forEach(radio => {
-                    radio.addEventListener('change', () => {
-                        const selectedType = this.getSelectedType();
-                        this.loadVideoByType(selectedType);
-                    });
-                });
-            }
-
-            // 获取当前选中的视频类型
-            getSelectedType() {
-                return document.querySelector('input[name="videoType"]:checked').value;
-            }
-
-            // 根据类型加载视频
-            loadVideoByType(type) {
-                const videoConfig = this.videoTypes[type];
-                if (!videoConfig) return;
-
-                // 显示加载中
-                this.loadingOverlay.classList.remove('hidden');
-                this.videoStatus.textContent = '加载中';
-                this.videoStatus.className = 'text-yellow-400';
-                this.videoTypeText.textContent = videoConfig.name;
-                this.videoDuration.textContent = '-'; // 重置时长显示
-
-                // 直接使用API URL
-                const videoUrl = videoConfig.url;
-                
-                // 更新两个视频源
-                this.videoSourceMobile.src = videoUrl;
-                this.videoSourceDesktop.src = videoUrl;
-
-                // 加载并播放当前设备对应的播放器
-                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-                currentPlayer.load();
-                
-                // 设置超时处理，如果在10秒内无法播放则提示用户
-                this.loadTimeout = setTimeout(() => {
-                    if (currentPlayer.networkState === 2 || currentPlayer.readyState < 2) {
-                        console.log('视频加载超时');
-                        this.videoStatus.textContent = '加载超时';
-                        this.videoStatus.className = 'text-yellow-400';
-                        this.loadingOverlay.classList.add('hidden');
-                    }
-                }, 10000);
-
-                // 添加到历史记录
-                this.currentHistoryItem = {
-                    type: videoConfig.name,
-                    timestamp: new Date().toLocaleString(),
-                    duration: '00:00'
-                };
-                
-                this.addToHistory(this.currentHistoryItem);
-            }
-
-            // 视频开始加载时
-            handleLoadStart() {
-                this.videoStatus.textContent = '加载中';
-                this.videoStatus.className = 'text-yellow-400';
-                this.loadingOverlay.classList.remove('hidden');
-            }
-
-            // 视频等待时
-            handleWaiting() {
-                this.videoStatus.textContent = '缓冲中';
-                this.videoStatus.className = 'text-yellow-400';
-            }
-
-            // 视频播放时
-            handlePlaying() {
-                this.videoStatus.textContent = '播放中';
-                this.videoStatus.className = 'text-green-400';
-                this.loadingOverlay.classList.add('hidden');
-            }
-
-            // 视频可以播放时
-            handleCanPlay() {
-                // 清除加载超时
-                if (this.loadTimeout) {
-                    clearTimeout(this.loadTimeout);
-                    this.loadTimeout = null;
-                }
-                
-                // 尝试播放
-                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-                
-                // 在移动设备上，我们不自动播放，等待用户交互
-                if ('ontouchstart' in window) {
-                    // 移动设备：不自动播放
-                    this.videoStatus.textContent = '就绪(点击播放)';
-                    this.videoStatus.className = 'text-blue-400';
-                } else {
-                    // 桌面设备：尝试自动播放
-                    currentPlayer.play().catch(error => {
-                        console.log('自动播放失败:', error);
-                        this.videoStatus.textContent = '就绪(点击播放)';
-                    });
-                }
-            }
-
-            // 视频加载完成
-            handleVideoLoaded() {
-                this.videoStatus.textContent = '播放中';
-                this.videoStatus.className = 'text-green-400';
-                this.loadingOverlay.classList.add('hidden');
-
-                // 获取当前播放器
-                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-                
-                // 创建一个计时器来更新时间
-                if (this.timeUpdateInterval) {
-                    clearInterval(this.timeUpdateInterval);
-                }
-                
-                // 每秒更新一次时间显示
-                this.timeUpdateInterval = setInterval(() => {
-                    if (this.videoHistory.length > 0 && currentPlayer.currentTime > 0) {
-                        const formattedTime = this.formatTime(currentPlayer.currentTime);
-                        this.videoHistory[0].duration = formattedTime;
-                        
-                        // 更新历史记录显示
-                        localStorage.setItem('videoHistory', JSON.stringify(this.videoHistory));
-                        this.updateHistoryDisplay();
-                    }
-                }, 1000);
-            }
-
-            // 视频时长变化时更新显示
-            handleDurationChange() {
-                const currentPlayer = window.innerWidth >= 768 ? this.videoPlayerDesktop : this.videoPlayerMobile;
-                
-                // 确保时长有效后再更新显示
-                if (currentPlayer.duration && !isNaN(currentPlayer.duration)) {
-                    this.videoDuration.textContent = this.formatTime(currentPlayer.duration);
-                }
-            }
-
-            // 视频播放错误
-            handleVideoError(error) {
-                console.error('视频播放错误:', error);
-                this.loadingOverlay.classList.add('hidden');
-                this.videoStatus.textContent = '加载失败';
-                this.videoStatus.className = 'text-red-400';
-                
-                // 清除计时器
-                if (this.timeUpdateInterval) {
-                    clearInterval(this.timeUpdateInterval);
-                    this.timeUpdateInterval = null;
-                }
-                
-                // 清除超时
-                if (this.loadTimeout) {
-                    clearTimeout(this.loadTimeout);
-                    this.loadTimeout = null;
-                }
-                
-                // 提示用户
-                alert('当前视频源加载失败，请点击"下一个视频"重试');
-            }
-
-            // 视频播放结束
-            handleVideoEnd() {
-                // 清除计时器
-                if (this.timeUpdateInterval) {
-                    clearInterval(this.timeUpdateInterval);
-                    this.timeUpdateInterval = null;
-                }
-                
-                if (this.autoPlay) {
-                    this.loadVideoByType(this.getSelectedType());
-                } else {
-                    this.videoStatus.textContent = '播放结束';
-                    this.videoStatus.className = 'text-gray-400';
-                }
-            }
-
-            // 切换自动播放
-            toggleAutoPlay() {
-                this.autoPlay = !this.autoPlay;
-                const status = this.autoPlay ? '开启' : '关闭';
-                const statusText = this.autoPlay ? '自动播放' : '手动播放';
-
-                // 更新按钮样式和文本
-                [this.mobileAutoPlayBtn, this.desktopAutoPlayBtn].forEach(btn => {
-                    if (btn.id === 'mobileAutoPlayBtn') {
-                        btn.innerHTML = `<i class="fa fa-bullseye"></i><span>${statusText}</span>`;
-                    } else {
-                        btn.innerHTML = `<i class="fa fa-bullseye"></i><span>自动播放: ${status}</span>`;
-                    }
-                    btn.className = this.autoPlay 
-                        ? 'bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm'
-                        : 'bg-secondary hover:bg-secondary/80 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center space-x-2 text-sm';
-                });
-            }
-
-            // 更新自动播放按钮状态
-            updateAutoPlayButton() {
-                this.toggleAutoPlay();
-                this.toggleAutoPlay(); // 触发两次，恢复初始状态
-            }
-
-            // 格式化时间
-            formatTime(seconds) {
-                if (isNaN(seconds) || seconds < 0) return '00:00';
-                
-                const mins = Math.floor(seconds / 60);
-                const secs = Math.floor(seconds % 60);
-                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-            }
-
-            // 添加到历史记录
-            addToHistory(item) {
-                this.videoHistory.unshift(item);
-                if (this.videoHistory.length > 20) this.videoHistory = this.videoHistory.slice(0, 20);
-                localStorage.setItem('videoHistory', JSON.stringify(this.videoHistory));
-                this.updateHistoryDisplay();
-            }
-
-            // 更新历史记录显示
-            updateHistoryDisplay() {
-                if (this.videoHistory.length === 0) {
-                    this.historyList.innerHTML = '<p class="text-white/60 text-center py-3">暂无播放历史</p>';
-                    return;
-                }
-
-                this.historyList.innerHTML = this.videoHistory.map(item => `
-                    <div class="flex justify-between items-center p-2 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                        <div class="flex-1">
-                            <div class="font-medium">${item.type}</div>
-                            <div class="text-white/60">${item.timestamp}</div>
-                        </div>
-                        <div class="text-white/60">${item.duration}</div>
-                    </div>
-                `).join('');
-            }
-
-            // 清空历史记录
-            clearHistory() {
-                if (confirm('确定要清空播放历史吗？')) {
-                    this.videoHistory = [];
-                    localStorage.removeItem('videoHistory');
-                    this.updateHistoryDisplay();
-                }
-            }
+  <script>
+    (function(window, document) {
+      'use strict';
+      
+      // DOM元素
+      const player = document.getElementById('player');
+      const switchBtn = document.getElementById('switchBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const categoryBtn = document.getElementById('categoryBtn');
+      const categoryDropdown = document.getElementById('categoryDropdown');
+      const sourceSelect = document.getElementById('sourceSelect');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const popup = document.getElementById('popup');
+      const closePopup = document.getElementById('closePopup');
+      const gotoHomepage = document.getElementById('gotoHomepage');
+      const joinGroup = document.getElementById('joinGroup');
+      
+      // 状态变量
+      let autoPlay = true;
+      let currentSource = sourceSelect.value;
+      
+      // 显示加载指示器
+      function showLoading() {
+        loadingIndicator.classList.remove('hidden');
+      }
+      
+      // 隐藏加载指示器
+      function hideLoading() {
+        loadingIndicator.classList.add('hidden');
+      }
+      
+      // 切换视频
+      function switchVideo() {
+        showLoading();
+        player.src = currentSource + '?_t=' + Math.random();
+        player.load();
+        
+        player.onloadeddata = function() {
+          hideLoading();
+          player.play().catch(e => {
+            console.log('自动播放失败:', e);
+          });
+        };
+        
+        player.onerror = function() {
+          hideLoading();
+          setTimeout(switchVideo, 1000);
+        };
+      }
+      
+      // 切换连续播放状态
+      switchBtn.addEventListener('click', function() {
+        autoPlay = !autoPlay;
+        const statusText = autoPlay ? '开启' : '关闭';
+        const iconClass = autoPlay ? 'fa-bullseye' : 'fa-pause';
+        
+        this.innerHTML = `<i class="fa ${iconClass} mr-2"></i>连续播放: ${statusText}`;
+        
+        if (autoPlay) {
+          this.classList.add('pulse-glow');
+        } else {
+          this.classList.remove('pulse-glow');
         }
-
-        // 初始化播放器
-        document.addEventListener('DOMContentLoaded', () => {
-            window.videoPlayerInstance = new RandomVideoPlayer();
-        });
-
-        // 键盘快捷键
-        document.addEventListener('keydown', (e) => {
-            const player = window.videoPlayerInstance;
-            if (!player) return;
-
-            switch(e.code) {
-                case 'Space':
-                    e.preventDefault();
-                    const currentPlayer = window.innerWidth >= 768 ? player.videoPlayerDesktop : player.videoPlayerMobile;
-                    currentPlayer.paused ? currentPlayer.play() : currentPlayer.pause();
-                    break;
-                case 'KeyN':
-                    player.loadVideoByType(player.getSelectedType());
-                    break;
-            }
-        });
-    </script>
-</body>
-</html>
-
-
-
+      });
+      
+      // 下一个视频
+      nextBtn.addEventListener('click', switchVideo);
+      
+      // 视频播放结束
+      player.addEventListener('ended', function() {
+        if (autoPlay) {
+          switchVideo();
+        }
+      });
+      
+      // 分类按钮点击
